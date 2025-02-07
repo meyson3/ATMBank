@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            width: 80%;
+            padding: 10px;
+            margin: 5px 0;
+            background: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .bank-logo {
+            width: 150px;
+            margin-bottom: 30px;
+        }
+        .large-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="pin-screen" class="container">
+        <img src="Images\bank.png" alt="Bank Logo" class="bank-logo">
+        <h2>Enter PIN</h2>
+        <input type="password" id="pin" placeholder="Enter PIN" maxlength="4">
+        <button onclick="checkPin()">Submit</button>
+    </div>
+    <div id="menu-screen" class="container" style="display: none;">
+        <img src="Images\bank.png" alt="Bank Logo" class="bank-logo">
+        <h2>Choose an Option</h2>
+        <button onclick="goToWithdraw()">Withdraw</button>
+        <button onclick="goToDeposit()">Deposit</button>
+        <button onclick="goToCurrencyTransfer()">Currency Transfer</button>
+        <button onclick="checkBalance()">Check Balance</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <div id="withdraw-screen" class="container" style="display: none;">
+        <h2>Withdraw</h2>
+        <input type="text" id="withdraw-amount" placeholder="Enter Amount">
+        <button onclick="withdraw()">Withdraw</button>
+        <button onclick="backToMenu()">Back</button>
+        <p id="withdraw-message"></p>
+    </div>
+
+    <div id="deposit-screen" class="container" style="display: none;">
+        <h2>Deposit</h2>
+        <input type="text" id="deposit-amount" placeholder="Enter Amount">
+        <button onclick="deposit()">Deposit</button>
+        <button onclick="backToMenu()">Back</button>
+        <p id="deposit-message"></p>
+    </div>
+
+    <div id="currency-screen" class="container" style="display: none;">
+        <h2>Currency Transfer</h2>
+        <p>Convert between currencies:</p>
+        <select id="currency-from">
+            <option value="USD">US Dollars ($)</option>
+            <option value="EUR">Euros (€)</option>
+            <option value="GBP">British Pounds (£)</option>
+        </select>
+        <select id="currency-to">
+            <option value="USD">US Dollars ($)</option>
+            <option value="EUR">Euros (€)</option>
+            <option value="GBP">British Pounds (£)</option>
+        </select>
+        <input type="text" id="currency-amount" placeholder="Enter Amount">
+        <button onclick="convertCurrency()">Convert</button>
+        <button onclick="backToMenu()">Back</button>
+        <p id="currency-message"></p>
+    </div>
+    <div id="transaction-screen" class="container" style="display: none;">
+        <h2>Transaction Successful</h2>
+        <p id="transaction-details"></p>
+        <button onclick="backToMenu()">Back to Menu</button>
+    </div>
+    <script>
+        let balance = { USD: 1000, EUR: 0, GBP: 0 };
+        let exchangeRates = { USD: 1, EUR: 0.92, GBP: 0.78 };
+        async function fetchExchangeRates() {
+            try {
+                let response = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+                let data = await response.json();
+                exchangeRates.EUR = data.rates.EUR;
+                exchangeRates.GBP = data.rates.GBP;
+            } catch (error) {
+                console.error("Failed to fetch exchange rates:", error);
+            }
+        }
+        fetchExchangeRates();
+        function checkPin() {
+            let pinInput = document.getElementById("pin").value;
+            if (pinInput === "0000") {
+                document.getElementById("pin-screen").style.display = "none";
+                document.getElementById("menu-screen").style.display = "block";
+            } else {
+                alert("Incorrect PIN. Please enter a 4-digit PIN.");
+            }
+        }
+        function withdraw() {
+            let amount = parseFloat(document.getElementById("withdraw-amount").value);
+            if (!isNaN(amount) && amount > 0 && amount <= balance.USD) {
+                balance.USD -= amount;
+                showTransactionScreen(`You withdrew $${amount}`);
+            } else {
+                document.getElementById("withdraw-message").innerText = "Invalid amount or insufficient funds.";
+            }
+        }
+        function goToWithdraw() {
+            document.getElementById("menu-screen").style.display = "none";
+            document.getElementById("withdraw-screen").style.display = "block";
+        }
+
+        function goToDeposit() {
+            document.getElementById("menu-screen").style.display = "none";
+            document.getElementById("deposit-screen").style.display = "block";
+        }
+        function deposit() {
+            let amount = parseFloat(document.getElementById("deposit-amount").value);
+            if (!isNaN(amount) && amount > 0) {
+                balance.USD += amount;
+                showTransactionScreen(`You deposited $${amount}`);
+            } else {
+                document.getElementById("deposit-message").innerText = "Enter a valid amount.";
+            }
+        }
+        function goToCurrencyTransfer() {
+            document.getElementById("menu-screen").style.display = "none";
+            document.getElementById("currency-screen").style.display = "block";
+        }
+
+        function backToMenu() {
+            document.getElementById("withdraw-screen").style.display = "none";
+            document.getElementById("deposit-screen").style.display = "none";
+            document.getElementById("transaction-screen").style.display = "none";
+            document.getElementById("menu-screen").style.display = "block";
+            document.getElementById("currency-screen").style.display = "none";
+        }
+
+       
+        function convertCurrency() {
+            let amount = parseFloat(document.getElementById("currency-amount").value);
+            let fromCurrency = document.getElementById("currency-from").value;
+            let toCurrency = document.getElementById("currency-to").value;
+
+            if (!isNaN(amount) && amount > 0 && fromCurrency !== toCurrency) {
+                if (amount > balance[fromCurrency]) {
+                    document.getElementById("currency-message").innerText = "Insufficient funds.";
+                    return;
+                }
+                let convertedAmount = (amount * (exchangeRates[toCurrency] / exchangeRates[fromCurrency])).toFixed(2);
+                balance[fromCurrency] -= amount;
+                balance[toCurrency] += parseFloat(convertedAmount);
+                document.getElementById("currency-message").innerText = `Converted: ${amount} ${fromCurrency} to ${convertedAmount} ${toCurrency}`;
+            } else {
+                document.getElementById("currency-message").innerText = "Enter a valid amount and select different currencies.";
+            }
+        }
+        function checkBalance() {
+            alert(`Current Balance:\nUSD: $${balance.USD}\nEUR: €${balance.EUR}\nGBP: £${balance.GBP}`);
+        }
+
+        function logout() {
+            document.getElementById("menu-screen").style.display = "none";
+            document.getElementById("withdraw-screen").style.display = "none";
+            document.getElementById("deposit-screen").style.display = "none";
+            document.getElementById("currency-screen").style.display = "none";
+            document.getElementById("pin-screen").style.display = "block";
+            document.getElementById("pin").value = "";
+        }
+        function showTransactionScreen(message) {
+            document.getElementById("withdraw-screen").style.display = "none";
+            document.getElementById("deposit-screen").style.display = "none";
+            document.getElementById("transaction-screen").style.display = "block";
+            document.getElementById("transaction-details").innerText = message;
+        }
+    </script>
+</body>
+</html>
