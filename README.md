@@ -1,2 +1,1 @@
-# ATMBank
-My ATM Site (React)
+PIN IS 0000
