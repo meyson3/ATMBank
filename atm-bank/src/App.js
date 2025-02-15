@@ -6,18 +6,22 @@ const App = () => {
   const [screen, setScreen] = useState("pin");
   const [pin, setPin] = useState("");
   const [balance, setBalance] = useState({ USD: 1000, EUR: 0, GBP: 0 });
-  const [exchangeRates, setExchangeRates] = useState({ USD: 1, EUR: 0.92, GBP: 0.78 });
   const [transactionMessage, setTransactionMessage] = useState("");
   const [amount, setAmount] = useState("");
   const [currencyFrom, setCurrencyFrom] = useState("USD");
   const [currencyTo, setCurrencyTo] = useState("EUR");
+  const [exchangeRates, setExchangeRates] = useState({ USD: 1, EUR: 0.92, GBP: 0.78 });
 
   useEffect(() => {
     const fetchExchangeRates = async () => {
       try {
         let response = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
         let data = await response.json();
-        setExchangeRates({ ...exchangeRates, EUR: data.rates.EUR, GBP: data.rates.GBP });
+        setExchangeRates({
+          USD: 1,
+          EUR: data.rates.EUR,
+          GBP: data.rates.GBP
+        });
       } catch (error) {
         console.error("Failed to fetch exchange rates:", error);
       }
@@ -55,7 +59,7 @@ const App = () => {
     }
   };
 
-  const convertCurrency = () => {
+  const transfer = () => {
     const amt = parseFloat(amount);
     if (!isNaN(amt) && amt > 0 && currencyFrom !== currencyTo) {
       if (amt > balance[currencyFrom]) {
@@ -68,23 +72,18 @@ const App = () => {
         [currencyFrom]: prev[currencyFrom] - amt,
         [currencyTo]: prev[currencyTo] + parseFloat(convertedAmount),
       }));
-      setTransactionMessage(`Converted: ${amt} ${currencyFrom} to ${convertedAmount} ${currencyTo}`);
+      setTransactionMessage(`Transferred ${amt} ${currencyFrom} to ${convertedAmount} ${currencyTo}`);
       setScreen("transaction");
     } else {
       alert("Enter a valid amount and select different currencies.");
     }
   };
 
-  const logout = () => {
-    setScreen("pin");
-    setPin("");
-  };
-
   return (
     <div className="container">
       {screen === "pin" && (
         <>
-         <img src={bankLogo} alt="Bank Logo" className="bank-logo" />
+          <img src={bankLogo} alt="Bank Logo" className="bank-logo" />
           <h2>Enter PIN</h2>
           <input
             type="password"
@@ -102,47 +101,43 @@ const App = () => {
           <h2>Choose an Option</h2>
           <button onClick={() => setScreen("withdraw")}>Withdraw</button>
           <button onClick={() => setScreen("deposit")}>Deposit</button>
-          <button onClick={() => setScreen("currency")}>Currency Transfer</button>
-          <button onClick={() => alert(`Balance: USD ${balance.USD}, EUR ${balance.EUR}, GBP ${balance.GBP}`)}>
-            Check Balance
-          </button>
-          <button onClick={logout}>Logout</button>
+          <button onClick={() => setScreen("transfer")}>Transfer</button>
+          <button onClick={() => setScreen("balance")}>Check Balance</button>
+          <button onClick={() => setScreen("pin")}>Logout</button>
         </>
       )}
-      {screen === "withdraw" && (
+      {screen === "transfer" && (
         <>
-          <h2>Withdraw</h2>
-          <input type="text" placeholder="Enter Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
-          <button onClick={withdraw}>Withdraw</button>
-          <button onClick={() => setScreen("menu")}>Back</button>
-        </>
-      )}
-      {screen === "deposit" && (
-        <>
-          <h2>Deposit</h2>
-          <input type="text" placeholder="Enter Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
-          <button onClick={deposit}>Deposit</button>
-          <button onClick={() => setScreen("menu")}>Back</button>
-        </>
-      )}
-      {screen === "currency" && (
-        <>
-          <h2>Currency Transfer</h2>
+          <h2>Transfer Money</h2>
           <select value={currencyFrom} onChange={(e) => setCurrencyFrom(e.target.value)}>
-            <option value="USD">US Dollars ($)</option>
-            <option value="EUR">Euros (€)</option>
-            <option value="GBP">British Pounds (£)</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
           </select>
           <select value={currencyTo} onChange={(e) => setCurrencyTo(e.target.value)}>
-            <option value="USD">US Dollars ($)</option>
-            <option value="EUR">Euros (€)</option>
-            <option value="GBP">British Pounds (£)</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
           </select>
-          <input type="text" placeholder="Enter Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
-          <button onClick={convertCurrency}>Convert</button>
+          <input
+            type="number"
+            placeholder="Enter amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <button onClick={transfer}>Transfer</button>
           <button onClick={() => setScreen("menu")}>Back</button>
         </>
       )}
+      {screen === "balance" && (
+        <>
+          <h2>Your Balance</h2>
+          <p><strong>USD:</strong> ${balance.USD}</p>
+          <p><strong>EUR:</strong> €{balance.EUR}</p>
+          <p><strong>GBP:</strong> £{balance.GBP}</p>
+          <button onClick={() => setScreen("menu")}>Back to Menu</button>
+        </>
+        )}
       {screen === "transaction" && (
         <>
           <h2>Transaction Successful</h2>
