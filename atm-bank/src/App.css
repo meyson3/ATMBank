@@ -5,9 +5,11 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f4f4f4;
+  background: url('../public/2b94a552-33c4-4f27-9916-e643c238fde1.webp') no-repeat center center fixed;
+  background-size: cover;
   margin: 0;
 }
+
 
 /* Container Styling */
 .container {

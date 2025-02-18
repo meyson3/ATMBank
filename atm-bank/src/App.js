@@ -11,6 +11,7 @@ const App = () => {
   const [currencyFrom, setCurrencyFrom] = useState("USD");
   const [currencyTo, setCurrencyTo] = useState("EUR");
   const [exchangeRates, setExchangeRates] = useState({ USD: 1, EUR: 0.92, GBP: 0.78 });
+  const [history, setHistory] = useState([]); // Store transactions
 
   useEffect(() => {
     const fetchExchangeRates = async () => {
@@ -41,7 +42,9 @@ const App = () => {
     const amt = parseFloat(amount);
     if (!isNaN(amt) && amt > 0 && amt <= balance.USD) {
       setBalance((prev) => ({ ...prev, USD: prev.USD - amt }));
-      setTransactionMessage(`You withdrew $${amt}`);
+      const transaction = `Withdrew $${amt}`;
+      setTransactionMessage(transaction);
+      setHistory((prev) => [...prev, { message: transaction, timestamp: new Date().toLocaleString() }]);
       setScreen("transaction");
     } else {
       alert("Invalid amount or insufficient funds.");
@@ -52,7 +55,9 @@ const App = () => {
     const amt = parseFloat(amount);
     if (!isNaN(amt) && amt > 0) {
       setBalance((prev) => ({ ...prev, USD: prev.USD + amt }));
-      setTransactionMessage(`You deposited $${amt}`);
+      const transaction = `Deposited $${amt}`;
+      setTransactionMessage(transaction);
+      setHistory((prev) => [...prev, { message: transaction, timestamp: new Date().toLocaleString() }]);
       setScreen("transaction");
     } else {
       alert("Enter a valid amount.");
@@ -72,7 +77,9 @@ const App = () => {
         [currencyFrom]: prev[currencyFrom] - amt,
         [currencyTo]: prev[currencyTo] + parseFloat(convertedAmount),
       }));
-      setTransactionMessage(`Transferred ${amt} ${currencyFrom} to ${convertedAmount} ${currencyTo}`);
+      const transaction = `Transferred ${amt} ${currencyFrom} to ${convertedAmount} ${currencyTo}`;
+      setTransactionMessage(transaction);
+      setHistory((prev) => [...prev, { message: transaction, timestamp: new Date().toLocaleString() }]);
       setScreen("transaction");
     } else {
       alert("Enter a valid amount and select different currencies.");
@@ -103,7 +110,34 @@ const App = () => {
           <button onClick={() => setScreen("deposit")}>Deposit</button>
           <button onClick={() => setScreen("transfer")}>Transfer</button>
           <button onClick={() => setScreen("balance")}>Check Balance</button>
+          <button onClick={() => setScreen("history")}>History of Transactions</button>
           <button onClick={() => setScreen("pin")}>Logout</button>
+        </>
+      )}
+      {screen === "withdraw" && (
+        <>
+          <h2>Withdraw Money</h2>
+          <input
+            type="number"
+            placeholder="Enter amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <button onClick={withdraw}>Withdraw</button>
+          <button onClick={() => setScreen("menu")}>Back</button>
+        </>
+      )}
+      {screen === "deposit" && (
+        <>
+          <h2>Deposit Money</h2>
+          <input
+            type="number"
+            placeholder="Enter amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <button onClick={deposit}>Deposit</button>
+          <button onClick={() => setScreen("menu")}>Back</button>
         </>
       )}
       {screen === "transfer" && (
@@ -137,11 +171,28 @@ const App = () => {
           <p><strong>GBP:</strong> £{balance.GBP}</p>
           <button onClick={() => setScreen("menu")}>Back to Menu</button>
         </>
-        )}
+      )}
       {screen === "transaction" && (
         <>
           <h2>Transaction Successful</h2>
           <p>{transactionMessage}</p>
+          <button onClick={() => setScreen("menu")}>Back to Menu</button>
+        </>
+      )}
+      {screen === "history" && (
+        <>
+          <h2>History of Transactions</h2>
+          {history.length > 0 ? (
+            <ul>
+              {history.map((txn, index) => (
+                <li key={index}>
+                  {txn.timestamp} - {txn.message}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No transactions yet.</p>
+          )}
           <button onClick={() => setScreen("menu")}>Back to Menu</button>
         </>
       )}
