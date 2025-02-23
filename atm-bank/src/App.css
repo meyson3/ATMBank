@@ -26,7 +26,22 @@ body {
   width: 150px;
   margin-bottom: 20px;
 }
-
+/* Gif */
+.loading-container {
+  width: 500px;
+  height: 400px;
+  margin: 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 10px;
+}
+.loading-gif {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  margin-left: -14.5px;
+}
 /* Headings */
 h2 {
   font-size: 24px;

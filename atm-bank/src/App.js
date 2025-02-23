@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import "./App.css";
 import bankLogo from "./bank.png";
+import loadGif from "./Money Saving GIF by Pudgy Penguins.gif";
 
 const App = () => {
   const [screen, setScreen] = useState("pin");
@@ -33,12 +34,18 @@ const App = () => {
 
   const checkPin = () => {
     if (pin === "0000") {
-      setScreen("menu");
+      setScreen("loading");
+      setTimeout(() => {
+        setScreen("menu");
+      }, 3000);
     } else {
       alert("Incorrect PIN. Please enter a 4-digit PIN.");
     }
   };
-  
+  const loading = function Loading(){
+    const [loading, setLoading] = useState(false);
+
+  }
   const withdraw = () => {
     const amt = parseFloat(amount);
     if (!isNaN(amt) && amt > 0 && amt <= balance.USD) {
@@ -165,6 +172,14 @@ const App = () => {
           <AnimatedButton text="Back" onClick={() => setScreen("menu")} />
         </>
       )}
+      {screen === "loading" && (
+  <>
+    <h2>Welcome!</h2>
+    <div className="loading-container">
+      <img src={loadGif} alt="Loading..." className="loading-gif" />
+    </div>
+  </>
+)}
       {screen === "transaction" && (
         <>
           <h2>Transaction Successful</h2>
