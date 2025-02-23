@@ -100,7 +100,7 @@ const App = () => {
             value={pin}
             onChange={(e) => setPin(e.target.value)}
           />
-          <motion.button whileTap={{ scale: 0.9 }} onClick={checkPin}>Submit</motion.button>
+          <AnimatedButton text="Submit" onClick={checkPin} />
         </>
       )}
       {screen === "balance" && (
@@ -109,9 +109,7 @@ const App = () => {
     <p><strong>USD:</strong> ${balance.USD}</p>
     <p><strong>EUR:</strong> €{balance.EUR}</p>
     <p><strong>GBP:</strong> £{balance.GBP}</p>
-    <motion.button whileTap={{ scale: 0.9 }} onClick={() => setScreen("menu")}>
-      Back to Menu
-    </motion.button>
+    <AnimatedButton text="Back"onClick={() => setScreen("menu")} />
   </>
 )}
 {screen === "transfer" && (
@@ -133,12 +131,8 @@ const App = () => {
       value={amount}
       onChange={(e) => setAmount(e.target.value)}
     />
-    <motion.button whileTap={{ scale: 0.9 }} onClick={transfer}>
-      Transfer
-    </motion.button>
-    <motion.button whileTap={{ scale: 0.9 }} onClick={() => setScreen("menu")}>
-      Back
-    </motion.button>
+    <AnimatedButton text="Back"onClick={transfer} />
+    <AnimatedButton text="Back"onClick={() => setScreen("menu")} />
   </>
 )}
 
@@ -160,23 +154,22 @@ const App = () => {
           <h2>Withdraw Money</h2>
           <input type="number" placeholder="Enter amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
           <AnimatedButton text="Withdraw"onClick={withdraw} />
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => setScreen("menu")}>Back</motion.button>
+          <AnimatedButton text="Back"onClick={() => setScreen("menu")} />
         </>
       )}
       {screen === "deposit" && (
         <>
           <h2>Deposit Money</h2>
           <input type="number" placeholder="Enter amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
-          <motion.button whileTap={{ scale: 0.9 }} onClick={deposit}>Deposit</motion.button>
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => setScreen("menu")}>Back</motion.button>
+          <AnimatedButton text="Deposit" onClick={deposit} />
+          <AnimatedButton text="Back" onClick={() => setScreen("menu")} />
         </>
       )}
       {screen === "transaction" && (
         <>
           <h2>Transaction Successful</h2>
           <p>{transactionMessage}</p>
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => setScreen("menu")}>Back to Menu</motion.button>
-        </>
+          <AnimatedButton text="Back to Menu" onClick={() => setScreen("menu")} />        </>
       )}
       {screen === "history" && (
         <>
@@ -190,7 +183,7 @@ const App = () => {
           ) : (
             <p>No transactions yet.</p>
           )}
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => setScreen("menu")}>Back to Menu</motion.button>
+         <AnimatedButton text="Back"onClick={() => setScreen("menu")} />
         </>
       )}
     </div>
